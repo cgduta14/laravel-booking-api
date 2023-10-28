@@ -3,10 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
-class TripRequest extends FormRequest
+class UpdateTripRequest extends FormRequest
 {
 
     /**
@@ -23,15 +21,7 @@ class TripRequest extends FormRequest
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|required|date',
             'location' => 'sometimes|required|string',
-            'price' => 'sometimes|required|decimal:2'        ];
-    }
-
-    public function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'success'   => false,
-            'message'   => 'Validation errors',
-            'data'      => $validator->errors()
-        ]));
+            'price' => 'sometimes|required|decimal:2'
+        ];
     }
 }

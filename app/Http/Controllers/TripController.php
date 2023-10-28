@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TripRequest;
+use App\Http\Requests\StoreTripRequest;
+use App\Http\Requests\UpdateTripRequest;
+use App\Http\Resources\TripCollection;
+use App\Http\Resources\TripResource;
 use App\Models\Trip;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +16,7 @@ class TripController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $trips = Trip::query();
         if ($request->query('orderBy')) {
@@ -34,35 +37,37 @@ class TripController extends Controller
         }
         $trips = $trips->get();
 
-        return response()->json($trips);
+        return new TripCollection($trips);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TripRequest $request): JsonResponse
+    public function store(StoreTripRequest $request)
     {
-        Trip::create($request->all());
+        $validated = $request->validated();
+        $trip = Trip::create($validated);
 
-        return response()->json('Trip created successfully');
+        return new TripResource($trip);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Trip $trip): JsonResponse
+    public function show(Trip $trip)
     {
-        return response()->json($trip);
+        return new TripResource($trip);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(TripRequest $request, Trip $trip): JsonResponse
+    public function update(UpdateTripRequest $request, Trip $trip)
     {
-        $trip->update($request->all());
+        $validated = $request->validated();
+        $trip->update($validated);
 
-        return response()->json('Trip updated successfully');
+        return new TripResource($trip);
     }
 
     /**
@@ -75,8 +80,10 @@ class TripController extends Controller
         return response(NULL,ResponseAlias::HTTP_NO_CONTENT);
     }
 
-    public function getTripBySlug(string $slug): JsonResponse
+    public function getTripBySlug(string $slug)
     {
-        return response()->json(Trip::where('slug', $slug)->firstOrFail());
+        $trip = Trip::where('slug', $slug)->firstOrFail();
+
+        return new TripResource($trip);
     }
 }
