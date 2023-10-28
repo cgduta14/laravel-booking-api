@@ -6,7 +6,6 @@ use App\Http\Requests\TripRequest;
 use App\Models\Trip;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class TripController extends Controller
@@ -14,9 +13,28 @@ class TripController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Trip::all());
+        $trips = Trip::query();
+        if ($request->query('orderBy')) {
+            try {
+                $trips = $trips->orderByCol($request->query('orderBy'), $request->query('orderDir') ?? 'ASC');
+            } catch (\Exception $e){
+                var_dump($e->getMessage());
+            }
+        }
+        if ($request->query('search')) {
+            $trips = $trips->searchBy($request->query('search'));
+        }
+        if ($request->query('priceFrom')) {
+            $trips = $trips->priceFrom($request->query('priceFrom'));
+        }
+        if ($request->query('priceTo')) {
+            $trips = $trips->priceTo($request->query('priceTo'));
+        }
+        $trips = $trips->get();
+
+        return response()->json($trips);
     }
 
     /**
@@ -55,5 +73,10 @@ class TripController extends Controller
         $trip->delete();
 
         return response(NULL,ResponseAlias::HTTP_NO_CONTENT);
+    }
+
+    public function getTripBySlug(string $slug): JsonResponse
+    {
+        return response()->json(Trip::where('slug', $slug)->firstOrFail());
     }
 }
