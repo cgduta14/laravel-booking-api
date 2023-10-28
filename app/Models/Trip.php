@@ -19,6 +19,11 @@ class Trip extends Model
         'price',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     public function scopeOrderByCol(Builder $query, string $orderBy, string $orderDir = 'ASC'): Builder
     {
         return $query->orderBy($orderBy, $orderDir);
