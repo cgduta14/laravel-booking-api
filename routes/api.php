@@ -18,5 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('trip/{slug}', [TripController::class, 'getTripBySlug']);
 Route::resource('trip', TripController::class)->except(['create,edit']);
 
