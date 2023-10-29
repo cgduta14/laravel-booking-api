@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return $request->user();
 });
-Route::post('login', [AuthController::class, 'login']);
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('register', [AuthController::class, 'register']);
 
 Route::get('trip/slug/{slug}', [TripController::class, 'getTripBySlug']);

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class AuthController extends Controller
 {
@@ -16,13 +17,17 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        $user = User::where('email', $validated['email'])->first();
+        if (! $user) {
+            return response()->json([
+                'message' => 'User does not exist. Register first!',
+            ], ResponseAlias::HTTP_UNAUTHORIZED);
+        }
         if (! Auth::attempt($validated)) {
             return response()->json([
-                'message' => 'Login information invalid',
-            ], 401);
+                'message' => 'Wrong password',
+            ], ResponseAlias::HTTP_UNAUTHORIZED);
         }
-
-        $user = User::where('email', $validated['email'])->first();
 
         return response()->json([
             'access_token' => $user->createToken('api_token')->plainTextToken,
@@ -48,6 +53,6 @@ class AuthController extends Controller
             'data' => $user,
             'access_token' => $user->createToken('api_token')->plainTextToken,
             'token_type' => 'Bearer',
-        ], 201);
+        ], ResponseAlias::HTTP_CREATED);
     }
 }
