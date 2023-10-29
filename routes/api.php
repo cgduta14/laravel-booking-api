@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,5 +26,9 @@ Route::post('register', [AuthController::class, 'register']);
 
 Route::get('trip/slug/{slug}', [TripController::class, 'getTripBySlug']);
 Route::apiResource('trip', TripController::class);
-Route::middleware('auth:sanctum')->apiResource('user', UserController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('user', UserController::class);
+    Route::post('book/{trip}', [ReservationController::class, 'book']);
+
+});
 
