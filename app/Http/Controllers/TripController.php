@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateTripRequest;
 use App\Http\Resources\TripCollection;
 use App\Http\Resources\TripResource;
 use App\Models\Trip;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
@@ -20,11 +19,17 @@ class TripController extends Controller
     {
         $trips = Trip::query();
         if ($request->query('orderBy')) {
-            try {
-                $trips = $trips->orderByCol($request->query('orderBy'), $request->query('orderDir') ?? 'ASC');
-            } catch (\Exception $e){
-                var_dump($e->getMessage());
+            $orderBy = $request->query('orderBy');
+            if (!in_array($orderBy, ['id', 'start_date', 'end_date', 'price'])) {
+                return response()->json('Column not allowed for orderBy', 500);
             }
+
+            $orderDir = $request->query('orderDir') ?? 'ASC';
+            if (!in_array(strtoupper($orderDir), ['ASC', 'DESC'])) {
+                return response()->json('Term not allowed for orderDir. Use only ASC/DESC', 500);
+            }
+
+            $trips = $trips->orderByCol($orderBy, $orderDir);
         }
         if ($request->query('search')) {
             $trips = $trips->searchBy($request->query('search'));
